@@ -22,16 +22,17 @@ export const UiMessages = {
         BACK: "Back to login",
     },
     REGISTER: {
-       BUTTON: "Register",
-       LOG_IN_BUTTON: "Log in",
-       TITLE: "Welcome back",
-       DESCRIPTION: "Register an account",
-       ALREADY_ACCOUNT: "Already have an account? ",
+        BUTTON: "Register",
+        LOG_IN_BUTTON: "Log in",
+        TITLE: "Welcome back",
+        DESCRIPTION: "Register an account",
+        ALREADY_ACCOUNT: "Already have an account? ",
+        BIRTHDAY_INPUT_TITLE: "Birthday"
     },
     RESET_PASSWORD: {
-       BUTTON: "Reset Password",
-       TITLE: "Reset Password",
-       DESCRIPTION: "Enter your new password",
+        BUTTON: "Reset Password",
+        TITLE: "Reset Password",
+        DESCRIPTION: "Enter your new password",
     },
     DELETE_MODAL: {
         TITLE: "Are you sure you want to delete calendar",

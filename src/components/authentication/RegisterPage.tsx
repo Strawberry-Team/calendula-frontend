@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import soloImage from "../../assets/logo_white.png";
-import { LockKeyhole, Mail, MapPinHouse, UserRound, Eye, EyeOff } from "lucide-react";
+import { LockKeyhole, Mail, MapPinHouse, UserRound, Eye, EyeOff, Cake } from "lucide-react";
 import { useState} from "react";
 import { useDispatch } from "react-redux";
 import { registerUser } from "@/components/redux/actions/authActions";
@@ -12,16 +12,41 @@ import { useNavigate } from "react-router-dom";
 import {showErrorToasts, showSuccessToast} from "@/components/utils/ToastNotifications.tsx";
 import { ToastStatusMessages } from "@/constants/toastStatusMessages.ts";
 import { UiMessages } from "@/constants/uiMessages.ts";
+import { format } from "date-fns";
 
 export default function RegisterPage({className, ...props}: React.ComponentProps<"div">) {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [formData, setFormData] = useState({ fullName: "", email: "", country: "", password: "", password_confirm: "" });
+    const [formData, setFormData] = useState({ fullName: "", email: "", birthday: "", country: "", password: "", password_confirm: "" });
+    const currentDateFormatted = format(new Date(), "dd.MM.yyyy");
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
     const toggleConfirmPasswordVisibility = () => setShowConfirmPassword((prev) => !prev);
+
+    const formatBirthdayDate = (inputVal: string): string => {
+        const digitsOnly = inputVal.replace(/\D/g, '');
+        let formattedDate = '';
+
+        if (digitsOnly.length > 0) {
+            formattedDate = digitsOnly.substring(0, Math.min(2, digitsOnly.length));
+
+            if (digitsOnly.length > 2) {
+                formattedDate += '.' + digitsOnly.substring(2, Math.min(4, digitsOnly.length));
+
+                if (digitsOnly.length > 4) {
+                    formattedDate += '.' + digitsOnly.substring(4, Math.min(8, digitsOnly.length));
+                }
+            }
+        }
+
+        return formattedDate;
+    };
+
+    const handleBirthdayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({ ...formData, birthday: formatBirthdayDate(e.target.value) });
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -30,7 +55,29 @@ export default function RegisterPage({className, ...props}: React.ComponentProps
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const result = await registerUser(formData, dispatch);
+        const processedFormData = { ...formData };
+
+        try {
+            const [day, month, year] = formData.birthday.split('.');
+            if (!day || !month || !year || year.length !== 4) {
+                showErrorToasts(ToastStatusMessages.AUTH.REGISTRATION_BIRTHDAY_FORMAT_ERROR);
+                return;
+            }
+
+            const dateObj = new Date(`${year}-${month}-${day}`);
+            if (isNaN(dateObj.getTime())) {
+                showErrorToasts(ToastStatusMessages.AUTH.REGISTRATION_BIRTHDAY_INCORRECT_ERROR);
+                return;
+            }
+
+            processedFormData.birthday = `${year}-${month}-${day}`;
+
+        } catch {
+            showErrorToasts(ToastStatusMessages.AUTH.REGISTRATION_BIRTHDAY_BASIC_ERROR);
+            return;
+        }
+
+        const result = await registerUser(processedFormData, dispatch);
         if (result.success) {
             showSuccessToast(ToastStatusMessages.AUTH.REGISTRATION_SUCCESS);
             navigate("/login");
@@ -88,6 +135,22 @@ export default function RegisterPage({className, ...props}: React.ComponentProps
                                             onChange={handleChange}
                                         />
                                     </div>
+
+                                    <div className="relative flex items-center gap-2">
+                                        <div className="absolute left-2">
+                                            <Cake />
+                                        </div>
+                                        <Input
+                                            id="birthday"
+                                            className="pl-10"
+                                            placeholder={`${UiMessages.REGISTER.BIRTHDAY_INPUT_TITLE} (${currentDateFormatted})`}
+                                            value={formData.birthday}
+                                            onChange={handleBirthdayChange}
+                                            autoComplete="off"
+                                            maxLength={10}
+                                        />
+                                    </div>
+
                                     <div className="relative flex items-center gap-2">
                                         <div className="absolute left-2">
                                             <MapPinHouse />
@@ -157,7 +220,7 @@ export default function RegisterPage({className, ...props}: React.ComponentProps
                                         </button>
                                     </div>
 
-                                    <Button type="submit" className="w-full" disabled={!formData.fullName || !formData.email || !formData.country || !formData.password || !formData.password_confirm}>
+                                    <Button type="submit" className="w-full" disabled={!formData.fullName || !formData.email || !formData.birthday || !formData.country || !formData.password || !formData.password_confirm}>
                                         {UiMessages.REGISTER.BUTTON}
                                     </Button>
 

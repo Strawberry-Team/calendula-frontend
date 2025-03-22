@@ -11,7 +11,9 @@ export const ToastStatusMessages = {
         REGISTRATION_SUCCESS: "Registration successful. Please verify your email!",
         REGISTRATION_FAILED: "Registration failed.",
         VERIFICATION_SUCCESS: "Account successfully verified!",
-        VERIFICATION_FAILED: "Account has not been verified!",
+        REGISTRATION_BIRTHDAY_FORMAT_ERROR: "Incorrect date of birth format",
+        REGISTRATION_BIRTHDAY_INCORRECT_ERROR: "Incorrect date of birth format",
+        REGISTRATION_BIRTHDAY_BASIC_ERROR: "Incorrect date of birth format"
     },
     CALENDARS: {
         CREATE_SUCCESS: "Successful create calendar.",
