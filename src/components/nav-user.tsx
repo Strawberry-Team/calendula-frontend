@@ -1,10 +1,4 @@
-import {
-  BadgeCheck,
-  Bell,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react"
+import { LogOut } from "lucide-react"
 
 import {
   Avatar,
@@ -14,7 +8,6 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -39,11 +32,46 @@ export function NavUser({
     fullName: string
     email: string
     profilePicture: string
+    country: string
+    birthday: string
   }
 }) {
   const { isMobile } = useSidebar();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const getCountryWithFlag = (country: string): string => {
+    switch (country) {
+      case 'Ukraine':
+        return '🇺🇦 Ukraine';
+      case 'Finland':
+        return '🇫🇮 Finland';
+      case 'Estonia':
+        return '🇪🇪 Estonia';
+      default:
+        return country || 'Not specified';
+    }
+  };
+
+  const calculateAge = (birthday: string): number | null => {
+    if (!birthday) return null;
+
+    const birthDate = new Date(birthday);
+    const today = new Date();
+
+    if (isNaN(birthDate.getTime())) return null;
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    return age;
+  };
+
+
 
   const handleLogout = async () => {
     const result = await logoutUser(dispatch);
@@ -85,32 +113,14 @@ export function NavUser({
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.fullName}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate text-xs py-1">{user.email}</span>
+                  <div className="flex items-center space-x-4 text-xs py-1">
+                    <span className="text-xs">{getCountryWithFlag(user.country)}</span>
+                    <span className="text-xs">{calculateAge(user.birthday)} years old</span>
+                  </div>
                 </div>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
               <LogOut />
